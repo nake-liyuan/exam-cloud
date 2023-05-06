@@ -1,0 +1,124 @@
+server:
+  port: 9203
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  application:
+    name: service-api
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.181.101:3306/exam_cloud?serverTimezone=GMT%2B8
+    username: root
+    password: root_exam_cloud
+    druid:
+      # 初始化大小，最小，最大
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存时间
+      min-evictable-idle-time-millis: 300000
+      validation-query: SELECT 1 FROM user
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      # 打开 PSCache，并且指定每个连接上 PSCache 的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      # 配置监控统计拦截的 Filter，去掉后监控界面 SQL 无法统计，wall 用于防火墙
+      filter:
+        stat:
+          enabled: true
+          db-type: mysql
+          log-slow-sql: true
+          slow-sql-millis: 2000
+        wall:
+          enabled: true
+          db-type: mysql
+          config:
+            delete-allow: false
+            drop-table-allow: false
+      # 通过 connection-properties 属性打开 mergeSql 功能；慢 SQL 记录
+      connection-properties: druid.stat.mergeSql\=true;druid.stat.slowSqlMillis\=5000
+      # 配置 DruidStatFilter
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: .js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*
+        session-stat-enable: true       # 开启session统计功能
+        session-stat-max-count: 1000    # session的最大个数,默认100
+      # 配置 DruidStatViewServlet
+      stat-view-servlet:
+        url-pattern: /druid/*
+        # IP 白名单，没有配置或者为空，则允许所有访问
+        allow: 127.0.0.1
+        # IP 黑名单，若白名单也存在，则优先使用
+        deny: 192.168.31.253
+        # 禁用 HTML 中 Reset All 按钮
+        reset-enable: false
+        # 登录用户名/密码
+        login-username: root
+        login-password: 123456
+        # 需要设置enabled=true,否则会报出There was an unexpected error (type=Not Found, status=404).错误，或者将druid-spring-boot-starter的版本降低到1.1.10及以下
+        # 是否启用StatViewServlet（监控页面）默认值为false（考虑到安全问题默认并未启动，如需启用建议设置密码或白名单以保障安全）
+        enabled: true
+  # redis配置
+  redis:
+    # Redis数据库索引（默认为0）
+    database: 0
+    # Redis服务器地址
+    host: 114.116.114.181
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    password: exam_cloud_redis
+    # 连接超时时间
+    timeout: 10s
+    lettuce:
+      pool:
+        # 连接池最大连接数
+        max-active: 200
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1ms
+        # 连接池中的最大空闲连接
+        max-idle: 10
+        # 连接池中的最小空闲连接
+        min-idle: 0
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.181.101:8848
+
+mybatis-plus:
+  type-enums-package: com.liyuan.typeHandler
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 默认枚举处理类
+    default-enum-type-handler: org.apache.ibatis.type.EnumOrdinalTypeHandler
+  mapper-locations: classpath:/mapperxml/*Mapper.xml
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+easy-es:
+  enable: true #默认为true,若为false则认为不启用本框架
+  address : 192.168.181.101:9200 # es的连接地址,必须含端口 若为集群,则可以用逗号隔开 例如:127.0.0.1:9200,127.0.0.2:9200
