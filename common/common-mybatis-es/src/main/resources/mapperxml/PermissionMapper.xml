@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.PermissionMapper">
+    <resultMap id="BaseResultMap" type="com.liyuan.domain.Permission">
+        <!--@mbg.generated-->
+        <!--@Table permission-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="menu_id" jdbcType="BIGINT" property="menuId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="value" jdbcType="VARCHAR" property="value"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="uri" jdbcType="VARCHAR" property="uri"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, menu_id, `name`, `value`, `type`, uri, is_deleted, create_time, modified_time
+    </sql>
+    <select id="initResourceRolesMap" resultType="com.liyuan.domain.vo.UrlRole">
+        select uri url, GROUP_CONCAT(role_name) roles
+        from permission p
+                     left join role_permission rp on p.id = rp.permission_id
+                     left join role r on rp.role_id = r.id
+        where value != '' and p.is_deleted=0 and r.is_deleted=0 and rp.is_deleted=0
+        GROUP BY uri
+    </select>
+</mapper>

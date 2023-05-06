@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.UserStateMapper">
+  <resultMap id="BaseResultMap" type="com.liyuan.domain.UserState">
+    <!--@mbg.generated-->
+    <!--@Table user_state-->
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="uid" jdbcType="CHAR" property="uid" />
+    <result column="follow_uid" jdbcType="CHAR" property="followUid" />
+    <result column="postings_id" jdbcType="CHAR" property="postingsId" />
+    <result column="like_state" jdbcType="BOOLEAN" property="likeState" />
+    <result column="trample_state" jdbcType="BOOLEAN" property="trampleState" />
+    <result column="view_state" jdbcType="BOOLEAN" property="viewState" />
+    <result column="circle_follow_state" jdbcType="BOOLEAN" property="circleFollowState" />
+    <result column="user_follow_state" jdbcType="BOOLEAN" property="userFollowState" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+    <result column="is_deleted" jdbcType="BOOLEAN" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, `uid`, follow_uid, postings_id, like_state, trample_state, view_state, circle_follow_state, 
+    user_follow_state, create_time, modified_time, is_deleted
+  </sql>
+</mapper>

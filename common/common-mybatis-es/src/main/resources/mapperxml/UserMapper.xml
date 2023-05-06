@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.UserMapper">
+    <resultMap id="BaseResultMap" type="com.liyuan.domain.User">
+        <!--@mbg.generated-->
+        <!--@Table `user`-->
+        <id column="id" jdbcType="CHAR" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="sex" jdbcType="INTEGER" property="sex"/>
+        <result column="open_id" jdbcType="VARCHAR" property="openId"/>
+        <result column="birthday" jdbcType="DATE" property="birthday"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="head_portrait" jdbcType="VARCHAR" property="headPortrait"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="role_name_zh" jdbcType="VARCHAR" property="roleNames"/>
+        <result column="roleIds" jdbcType="VARCHAR" property="roleIds"/>
+    </resultMap>
+    <resultMap id="getUserRoles" type="com.liyuan.domain.vo.UserVo">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="status" property="status"/>
+        <collection property="roles" ofType="java.lang.String">
+            <result column="role_name"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, username, `password`, `name`, sex, birthday, phone, email, address, head_portrait,
+        education, create_time, modified_time, is_deleted,status
+    </sql>
+    <select id="getUserRoles" resultMap="getUserRoles">
+        select u.id id, username, password, status, role_name
+        from user u
+                     left join user_role ur on u.id = ur.user_id
+                     left join role r on r.id = ur.role_id
+        where u.username = #{uname,jdbcType=VARCHAR}
+    </select>
+
+    <select id="listUser" resultMap="BaseResultMap">
+        select u.id,
+               u.username,
+               u.name,
+               u.sex,
+               u.birthday,
+               u.phone,
+               u.email,
+               u.address,
+               u.head_portrait,
+               u.education,
+               u.status,
+               u.create_time,
+               u.modified_time,
+               GROUP_CONCAT(ur.role_id) roleIds,
+               GROUP_CONCAT(r.role_name_zh) role_name_zh
+        from  user_role ur
+                     left join user u on u.id = ur.user_id
+                     left join role r on r.id = ur.role_id
+        <trim prefix="where" prefixOverrides="and | or">
+            and u.is_deleted = 0
+                and ur.is_deleted = 0
+                and r.is_deleted = 0
+            <if test="value != null and value != ''">
+                and (
+                        u.username LIKE CONCAT('%', #{value,jdbcType=VARCHAR}, '%')
+                                OR u.phone LIKE CONCAT('%', #{value,jdbcType=VARCHAR}, '%')
+                                OR u.name LIKE CONCAT('%', #{value,jdbcType=VARCHAR}, '%')
+                        )
+            </if>
+            <if test="status != null">
+                and u.status = #{status,jdbcType=INTEGER}
+            </if>
+        </trim>
+        GROUP BY u.id
+    </select>
+</mapper>

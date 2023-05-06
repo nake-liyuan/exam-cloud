@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.RoleMapper">
+    <resultMap id="BaseResultMap" type="com.liyuan.domain.Role">
+        <!--@mbg.generated-->
+        <!--@Table `role`-->
+        <id column="id" jdbcType="CHAR" property="id"/>
+        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+        <result column="role_name_zh" jdbcType="VARCHAR" property="roleNameZh"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+
+    <resultMap id="PermissionKeyValue" type="com.liyuan.domain.vo.PermissionKeyValue">
+        <result property="menuId" column="menuId"/>
+        <collection property="value" ofType="java.lang.String">
+            <result column="value"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="listMenuPermission" type="com.liyuan.domain.vo.menuPermission.MenuPermission">
+        <result column="menu" property="menu"/>
+        <collection property="permissionDic" ofType="com.liyuan.domain.vo.menuPermission.permissionDic.PermissionDic">
+            <result column="label" property="label"/>
+            <result column="value" property="value"/>
+        </collection>
+    </resultMap>
+    <resultMap id="permissionValue" type="com.liyuan.domain.vo.menuPermission.MenuPermissionKeyValue">
+        <result column="title" property="title"/>
+        <collection property="permissionId" ofType="java.lang.String">
+            <result column="id"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, role_name, role_name_zh, create_time, modified_time, is_deleted
+    </sql>
+
+    <select id="permissionValueByRoles" resultMap="PermissionKeyValue">
+        select p.menu_id as menuId, p.value
+        from role
+                     left join role_permission rp on role.id = rp.role_id
+                     left outer join permission p on p.id = rp.permission_id
+                where role_name in
+        <foreach collection="list" item="list" open="(" close=")" separator=",">
+            #{list,jdbcType=VARCHAR}
+        </foreach>
+        and role.is_deleted = 0
+        and rp.is_deleted = 0
+        and p.is_deleted = 0
+    </select>
+    <select id="roleParams" resultType="com.liyuan.domain.vo.RoleParams">
+        select id as 'key', role_name_zh as label
+        from role
+        where is_deleted = 0
+    </select>
+    <select id="listMenuPermissionById" resultMap="listMenuPermission">
+        select m.title as menu, p.name as label, p.id as value
+        from menu m
+                     left join permission p on m.id = p.menu_id
+                where m.is_deleted = 0
+                  and p.is_deleted = 0
+                  and m.id in
+        <foreach collection="list" item="list" open="(" close=")" separator=",">
+            #{list,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+    <select id="permissionValueByRoleId" resultMap="permissionValue">
+        select m.title, p.id
+        from role_permission rp
+                     left outer join permission p on p.id = rp.permission_id
+                     left join menu m on m.id = p.menu_id
+                     where rp.is_deleted=0 and p.is_deleted=0 and m.is_deleted=0 and rp.role_id=#{id,jdbcType=VARCHAR}
+    </select>
+    <select id="roleChildLevelMenu" resultType="java.lang.String">
+    select id
+    from role_menu rm
+    left join menu m on rm.menu_id = m.id
+    where m.pid!=0
+</select>
+</mapper>

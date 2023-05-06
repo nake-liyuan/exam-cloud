@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.PostingsMapper">
+  <resultMap id="BaseResultMap" type="com.liyuan.domain.Postings">
+    <!--@mbg.generated-->
+    <!--@Table postings-->
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="uid" jdbcType="CHAR" property="uid" />
+    <result column="pid" jdbcType="CHAR" property="pid" />
+    <result column="circle_name" jdbcType="VARCHAR" property="circleName" />
+    <result column="follow_count" jdbcType="INTEGER" property="followCount" />
+    <result column="main_image" jdbcType="VARCHAR" property="mainImage" />
+    <result column="label" jdbcType="VARCHAR" property="label" />
+    <result column="desc" jdbcType="VARCHAR" property="desc" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="viewUser_count" jdbcType="INTEGER" property="viewuserCount" />
+    <result column="trample_count" jdbcType="INTEGER" property="trampleCount" />
+    <result column="comment_count" jdbcType="INTEGER" property="commentCount" />
+    <result column="likeCount" jdbcType="INTEGER" property="likecount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+    <result column="is_deleted" jdbcType="BOOLEAN" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, `uid`, pid, circle_name, follow_count, main_image, `label`, `desc`, content, 
+    viewUser_count, trample_count, comment_count, likeCount, create_time, modified_time, 
+    is_deleted
+  </sql>
+</mapper>

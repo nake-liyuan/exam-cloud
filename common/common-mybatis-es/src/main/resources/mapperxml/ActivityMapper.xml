@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.ActivityMapper">
+  <resultMap id="BaseResultMap" type="com.liyuan.domain.Activity">
+    <!--@mbg.generated-->
+    <!--@Table activity-->
+    <id column="id" jdbcType="CHAR" property="id" />
+    <id column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="pid" jdbcType="CHAR" property="pid" />
+    <result column="uid" jdbcType="CHAR" property="uid" />
+    <result column="laber" jdbcType="VARCHAR" property="laber" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="attend_user_count" jdbcType="INTEGER" property="attendUserCount" />
+    <result column="attend_state" jdbcType="BOOLEAN" property="attendState" />
+    <result column="attendance_state" jdbcType="BOOLEAN" property="attendanceState" />
+    <result column="activity_time" jdbcType="TIMESTAMP" property="activityTime" />
+    <result column="address_name" jdbcType="VARCHAR" property="addressName" />
+    <result column="detailed_address" jdbcType="VARCHAR" property="detailedAddress" />
+    <result column="location" jdbcType="OTHER" property="location" />
+    <result column="view_user_count" jdbcType="INTEGER" property="viewUserCount" />
+    <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime" />
+    <result column="is_deleted" jdbcType="BOOLEAN" property="isDeleted" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, create_time, pid, `uid`, laber, title, content, attend_user_count, attend_state, 
+    attendance_state, activity_time, address_name, detailed_address, `location`, view_user_count, 
+    modified_time, is_deleted
+  </sql>
+</mapper>

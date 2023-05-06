@@ -1,0 +1,69 @@
+server:
+  port: 9200
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+spring:
+  application:
+    name: exam-gateway
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.181.101:8848
+    gateway:
+      routes: #配置路由路径
+        - id: oauth2-web-route
+          uri: lb://service-web
+          predicates:
+            - Path=/admin/**
+          filters:
+            - StripPrefix=1
+        - id: oauth2-app-route
+          uri: lb://service-app
+          predicates:
+            - Path=/portal/**
+          filters:
+            - StripPrefix=1
+        - id: oauth2-auth-route
+          uri: lb://exam-auth
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+      discovery:
+        locator:
+          enabled: true #开启从注册中心动态创建路由的功能
+          lower-case-service-id: true #使用小写服务名，默认是大写
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://localhost:9201/rsa/publicKey' #配置RSA的公钥访问地址
+  redis:
+    database: 0
+    port: 6379
+    host: 114.116.114.181
+    password: exam_cloud_redis
+secure:
+  ignore:
+    urls: #配置白名单路径
+      - "POST:/auth/oauth/token"
+      - "GET:/auth/rsa/publicKey"
+      - "GET:/captcha"
+      - "POST:/portal/sms"
+      - "POST:/admin/files/upload/**"
+      - "DELETE:/admin/user/logout"
+      - "GET:/admin/menu/byRoles"
+        #swagger
+      - "GET:/doc.html"
+      - "GET:/webjars/**"
+      - "GET:/swagger-resources"
+      - "GET:/admin/v2/api-docs"
+      - "GET:/portal/v2/api-docs"
+      - "GET:/auth/v2/api-docs"

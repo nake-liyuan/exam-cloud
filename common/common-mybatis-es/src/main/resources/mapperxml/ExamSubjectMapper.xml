@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.ExamSubjectMapper">
+    <resultMap id="BaseResultMap" type="com.liyuan.domain.ExamSubject">
+        <!--@mbg.generated-->
+        <!--@Table exam_subject-->
+        <id column="id" jdbcType="CHAR" property="id"/>
+        <result column="pid" jdbcType="CHAR" property="pid"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="num" jdbcType="INTEGER" property="num"/>
+        <result column="type" jdbcType="INTEGER" property="type"/>
+        <result column="sort" jdbcType="INTEGER" property="sort"/>
+        <result column="option_a" jdbcType="VARCHAR" property="optionA"/>
+        <result column="option_b" jdbcType="VARCHAR" property="optionB"/>
+        <result column="option_c" jdbcType="VARCHAR" property="optionC"/>
+        <result column="option_d" jdbcType="VARCHAR" property="optionD"/>
+        <result column="answers_num" jdbcType="INTEGER" property="answersNum"/>
+        <result column="reference_answer" jdbcType="VARCHAR" property="referenceAnswer"/>
+        <result column="analysis" jdbcType="VARCHAR" property="analysis"/>
+        <result column="grade" jdbcType="BIGINT" property="grade"/>
+        <result column="question_type" jdbcType="INTEGER" property="questionType"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="modified_time" jdbcType="TIMESTAMP" property="modifiedTime"/>
+        <result column="is_deleted" jdbcType="INTEGER" property="isDeleted"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, pid, `name`, num, `type`,sort
+    </sql>
+    <sql id="T1">
+        T1.id,
+        T1.pid,
+        T1.name,
+        T1.num,
+        T1.type,
+        T1.sort
+    </sql>
+    <sql id="T2">
+        T2.id,
+        T2.pid,
+        T2.name,
+        T2.num,
+        T2.type,
+        T2.sort
+    </sql>
+    <sql id="recursiontable">
+        WITH RECURSIVE recursion(<include refid="Base_Column_List"/>) AS
+        (
+        SELECT
+        <include refid="T1"/>
+        FROM exam_subject T1
+        WHERE T1.id=#{id,jdbcType=VARCHAR}
+        UNION ALL
+
+        SELECT
+        <include refid="T2"/>
+        FROM exam_subject T2,recursion T3
+        WHERE T2.pid=T3.id and T2.type!=5 and T2.is_deleted=0
+        )
+    </sql>
+    <sql id="recursiontableTopicId">
+        WITH RECURSIVE recursion(<include refid="Base_Column_List"/>) AS
+        (
+        SELECT
+        <include refid="T1"/>
+        FROM exam_subject T1
+        WHERE T1.id=#{id,jdbcType=VARCHAR}
+        UNION ALL
+
+        SELECT
+        <include refid="T2"/>
+        FROM exam_subject T2,recursion T3
+        WHERE T2.pid=T3.id and T2.is_deleted=0
+        )
+    </sql>
+    <sql id="subjectInfo">
+    select ar.id,
+               es.name,
+               es.option_a,
+               es.option_b,
+               es.option_c,
+               es.option_d,
+               ar.user_answer,
+               es.analysis,
+               es.answers_num,
+               ar.answer_num,
+               ar.correct_num,
+               es.reference_answer,
+               es.question_type,
+               ar.topic_note,
+               ar.is_mistakes,
+               ar.is_collect
+        from exam_subject es
+                     left join answer_record ar on es.id = ar.subject_id
+    </sql>
+    <select id="getExamSubjectByType" resultMap="BaseResultMap">
+        <include refid="recursiontable"/>
+        SELECT T.id, T.pid, T.`name`, T.num, T.type
+        FROM recursion T
+    </select>
+    <select id="getTopicPid" resultType="java.lang.String">
+        <include refid="recursiontable"/>
+        SELECT T.id
+        FROM recursion T
+        WHERE T.type != 4
+    </select>
+    <select id="getTopicId" resultType="java.lang.String">
+        <include refid="recursiontableTopicId"/>
+        SELECT T.id
+        FROM recursion T
+        WHERE T.type = 4
+    </select>
+    <select id="getExamSubjectInfo" resultMap="BaseResultMap">
+        <include refid="recursiontableTopicId"/>
+        SELECT T.id, T.pid, T.name, T.sort, T.num, T.type
+        FROM recursion T
+        WHERE T.type in (2, 3)
+    </select>
+    <select id="getsubjectInfoBySection" resultType="com.liyuan.domain.app.vo.UserSubjectInfo">
+        <include refid="subjectInfo"/>
+        where es.is_deleted = 0
+          and es.pid = #{id,jdbcType=VARCHAR}
+          and ar.is_deleted = 0
+          and ar.user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+    <select id="randomQuery" resultMap="BaseResultMap">
+        select id,pid,`name`,option_a,option_b,option_c,option_d,reference_answer,analysis,grade,question_type
+        from exam_subject
+        where id in(
+            <include refid="recursiontableTopicId"/>
+            SELECT T.id
+            FROM recursion T
+            WHERE T.type = 4
+        )
+        ORDER BY RAND() LIMIT 10;
+
+    </select>
+    <select id="getQuestionInfo" resultType="com.liyuan.domain.app.vo.UserSubjectInfo">
+    <include refid="subjectInfo"/>
+    where es.is_deleted = 0
+          and ar.id in
+            <foreach item="item" collection="ids" separator="," open="(" close=")" index="">
+    	    #{item, jdbcType=INTEGER}
+            </foreach>
+          and ar.is_deleted = 0
+          and ar.user_id = #{userId,jdbcType=VARCHAR}
+    </select>
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.liyuan.mapper.mp.MenuMapper">
+  <resultMap id="BaseResultMap" type="com.liyuan.domain.Menu">
+    <!--@mbg.generated-->
+    <!--@Table menu-->
+    <id column="id" jdbcType="CHAR" property="id" />
+    <result column="pid" jdbcType="BIGINT" property="pid" />
+    <result column="hidden" jdbcType="INTEGER" property="hidden" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="icon" jdbcType="VARCHAR" property="icon" />
+    <result column="iconType" jdbcType="VARCHAR" property="icontype" />
+    <result column="menuType" jdbcType="INTEGER" property="menuType" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+  </resultMap>
+  <resultMap id="getpermenus" type="com.liyuan.domain.vo.MenusVo">
+        <id column="id" property="id"/>
+        <result column="path" property="path"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="hidden" property="hidden"/>
+        <result column="sort" property="sort"/>
+        <result column="pid" property="pid"/>
+        <association property="meta" javaType="com.liyuan.domain.vo.Meta">
+            <result column="title" property="title"/>
+            <result column="icon" property="icon"/>
+            <result column="iconType" property="iconType"/>
+        </association>
+    </resultMap>
+  <select id="getMenuByRole" resultMap="getpermenus">
+    select m.id id, m.pid pid, m.hidden hidden, m.name name, m.path path, m.type type,
+     m.title title, m.sort sort,m.icon icon, m.iconType iconType
+    from menu m
+    left join role_menu rm on m.id = rm.menu_id
+    where m.is_deleted=0
+    and rm.role_id in(
+        select r.id
+        from role r
+        where r.is_deleted=0
+        and r.role_name in
+        <foreach collection="roles" item="roles" open="(" close=")" separator=",">
+        #{roles,jdbcType=VARCHAR}
+        </foreach>
+    )
+</select>
+<select id="listMenus" resultMap="BaseResultMap">
+    WITH RECURSIVE recursion(id, pid, hidden, name, type, path, title, icon, iconType, menuType,sort) AS
+        (
+        SELECT T1.id, T1.pid, T1.hidden, T1.name, T1.type, T1.path, T1.title, T1.icon, T1.iconType, T1.menuType,T1.sort
+        FROM menu T1
+        WHERE T1.title =#{title,jdbcType=VARCHAR}
+        UNION ALL
+
+        SELECT T2.id, T2.pid, T2.hidden, T2.name, T2.type, T2.path, T2.title, T2.icon, T2.iconType, T2.menuType,T2.sort
+        FROM menu T2,recursion T3
+        WHERE T2.pid=T3.id and T2.is_deleted=0
+        )
+
+SELECT T.id, T.pid, T.hidden, T.name, T.type, T.path, T.title, T.icon, T.iconType, T.menuType,T.sort
+  FROM recursion T
+</select>
+<select id="listMenusId" resultType="java.lang.String">
+     WITH RECURSIVE recursion(id, pid, hidden, name, type, path, title, icon, iconType, menuType) AS
+        (
+        SELECT T1.id, T1.pid, T1.hidden, T1.name, T1.type, T1.path, T1.title, T1.icon, T1.iconType, T1.menuType
+        FROM menu T1
+        WHERE T1.id =#{id,jdbcType=VARCHAR}
+        UNION ALL
+
+        SELECT T2.id, T2.pid, T2.hidden, T2.name, T2.type, T2.path, T2.title, T2.icon, T2.iconType, T2.menuType
+        FROM menu T2,recursion T3
+        WHERE T2.pid=T3.id and T2.is_deleted=0
+        )
+        select T.id
+        from recursion T
+        where T.menuType=1
+</select>
+<select id="listMenuCatalogue" resultMap="BaseResultMap">
+
+</select>
+</mapper>
